@@ -1,0 +1,90 @@
+---
+import { MOCK_CARDS } from '../data/cards';
+import { CardCategory } from '../types';
+import CardItem from './CardItem.astro';
+
+const categories = Object.values(CardCategory);
+---
+
+<div class="space-y-8">
+  <!-- Filters -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
+    <div class="flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+      <h2 class="text-lg font-bold text-slate-900">筛选卡片</h2>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      {categories.map((cat) => (
+        <button
+          data-category={cat}
+          class={`category-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${cat === CardCategory.ALL ? 'bg-blue-50 text-blue-700 border border-blue-300 shadow-lg shadow-primary-500/20 px-6' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Cards Stack -->
+  <div id="card-grid" class="space-y-6">
+    {MOCK_CARDS.map(card => (
+      <div class="card-item" data-categories={JSON.stringify(card.category)}>
+        <CardItem card={card} />
+      </div>
+    ))}
+  </div>
+
+  <div id="no-cards" class="hidden text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
+    <p class="text-slate-500">该分类下暂无卡片推荐。</p>
+    <button id="view-all-btn" class="text-primary-600 mt-2 hover:underline">查看全部</button>
+  </div>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.category-btn');
+  const cards = document.querySelectorAll<HTMLDivElement>('.card-item');
+  const noCards = document.getElementById('no-cards');
+  const viewAllBtn = document.getElementById('view-all-btn');
+
+  function filterCards(selected: string) {
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const cats = JSON.parse(card.dataset.categories || '[]');
+      if (selected === '全部' || cats.includes(selected)) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    if (visibleCount === 0) {
+      noCards?.classList.remove('hidden');
+    } else {
+      noCards?.classList.add('hidden');
+    }
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selected = btn.dataset.category || '全部';
+
+      buttons.forEach(b => {
+        b.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-300', 'shadow-lg', 'shadow-primary-500/20', 'px-6');
+        b.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200', 'hover:bg-slate-50', 'hover:border-slate-300');
+      });
+      btn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200', 'hover:bg-slate-50', 'hover:border-slate-300');
+      btn.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-300', 'shadow-lg', 'shadow-primary-500/20', 'px-6');
+
+      filterCards(selected);
+    });
+  });
+
+  viewAllBtn?.addEventListener('click', () => {
+    const allBtn = Array.from(buttons).find(b => b.dataset.category === '全部');
+    allBtn?.click();
+  });
+</script>

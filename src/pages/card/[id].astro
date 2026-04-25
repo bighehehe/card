@@ -1,0 +1,215 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { MOCK_CARDS } from '../../data/cards';
+import { CardCategory } from '../../types';
+
+export function getStaticPaths() {
+  return MOCK_CARDS.map(card => ({
+    params: { id: card.id },
+    props: { card },
+  }));
+}
+
+const { card } = Astro.props;
+
+const stars = Array.from({ length: 5 }, (_, i) => i < Math.floor(card.rating));
+---
+
+<Layout title={`${card.name} - CardWise CN`}>
+  <Header />
+  <main class="flex-grow bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Breadcrumbs -->
+      <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center gap-2 text-sm mb-6 rounded-lg">
+        <a href="/" class="flex items-center text-slate-500 hover:text-primary-600 font-medium transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          返回列表
+        </a>
+        <span class="text-gray-300">/</span>
+        <span class="text-slate-900">{card.bank}</span>
+        <span class="text-gray-300">/</span>
+        <span class="text-slate-500 truncate">{card.name}</span>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <!-- Header Section -->
+        <div class="p-6 md:p-8 border-b border-gray-100">
+          <div class="flex flex-col md:flex-row gap-8">
+            <!-- Left: Image -->
+            <div class="w-full md:w-1/3 flex flex-col items-center">
+              <div class="relative w-full max-w-[300px] aspect-[1.58] shadow-xl rounded-xl overflow-hidden mb-6 transform transition-transform hover:scale-105">
+                <img src={card.image} alt={card.name} class="w-full h-full object-cover" />
+              </div>
+              <div class="flex flex-col gap-3 w-full max-w-[300px]">
+                <button class="w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md text-sm">
+                  立即申请
+                </button>
+                <button
+                  id="compare-btn"
+                  class="flex items-center justify-center gap-2 text-sm font-medium w-full py-3 rounded-lg border transition-colors bg-white border-gray-200 text-slate-600 hover:bg-gray-50"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  加入对比
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Info -->
+            <div class="w-full md:w-2/3">
+              <div class="flex flex-wrap gap-2 mb-4">
+                {card.category.map((cat) => (
+                  <span class="text-xs font-semibold px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">{cat}</span>
+                ))}
+              </div>
+              <h1 class="text-3xl font-extrabold text-slate-900 mb-2">{card.name}</h1>
+              <p class="text-lg text-slate-500 font-medium mb-4">{card.bank}</p>
+
+              <div class="flex items-center gap-4 mb-8 bg-yellow-50 p-3 rounded-lg w-fit">
+                <div class="flex flex-col">
+                  <span class="text-xs text-yellow-700 font-bold uppercase tracking-wider">编辑评分</span>
+                  <div class="flex items-center gap-0.5">
+                    {stars.map((filled) => (
+                      <svg xmlns="http://www.w3.org/2000/svg" class={`w-4 h-4 ${filled ? 'text-yellow-400' : 'text-gray-300'}`} viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+                <div class="h-8 w-px bg-yellow-200 mx-2"></div>
+                <div class="text-sm text-yellow-800 font-medium">
+                  CardWise 推荐指数
+                </div>
+              </div>
+
+              <!-- Key Features Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                  <div class="flex items-center gap-2 mb-2 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <span class="text-xs font-bold uppercase">年费</span>
+                  </div>
+                  <p class="font-semibold text-slate-900">{card.annualFee}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                  <div class="flex items-center gap-2 mb-2 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="text-xs font-bold uppercase">APR</span>
+                  </div>
+                  <p class="font-semibold text-slate-900">{card.apr}</p>
+                </div>
+                <div class="bg-primary-50 p-4 rounded-lg border border-primary-100">
+                  <div class="flex items-center gap-2 mb-2 text-primary-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span class="text-xs font-bold uppercase">新户礼遇</span>
+                  </div>
+                  <p class="font-semibold text-primary-800">{card.welcomeBonus}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Body -->
+        <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          <!-- Pros & Cons -->
+          <div class="space-y-8">
+            <div>
+              <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+                优点解析
+              </h3>
+              <ul class="space-y-3">
+                {card.pros.map((pro) => (
+                  <li class="flex items-start gap-3 group">
+                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 group-hover:scale-125 transition-transform"></div>
+                    <span class="text-slate-700 leading-relaxed">{pro}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </span>
+                注意事项
+              </h3>
+              <ul class="space-y-3">
+                {card.cons.map((con) => (
+                  <li class="flex items-start gap-3 group">
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 group-hover:scale-125 transition-transform"></div>
+                    <span class="text-slate-600 leading-relaxed">{con}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Detailed Features Table -->
+          <div>
+            <h3 class="text-xl font-bold text-slate-900 mb-6">卡片详情与权益</h3>
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+              <table class="w-full text-sm text-left">
+                <tbody class="divide-y divide-gray-200">
+                  <tr class="bg-gray-50">
+                    <th class="px-4 py-3 font-medium text-slate-500 w-1/3">发卡银行</th>
+                    <td class="px-4 py-3 text-slate-900 font-medium">{card.bank}</td>
+                  </tr>
+                  <tr class="bg-white">
+                    <th class="px-4 py-3 font-medium text-slate-500">积分/返现规则</th>
+                    <td class="px-4 py-3 text-slate-900">{card.features.rewardsRate}</td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <th class="px-4 py-3 font-medium text-slate-500">境外交易费</th>
+                    <td class="px-4 py-3 text-slate-900">{card.features.foreignTxFee}</td>
+                  </tr>
+                  <tr class="bg-white">
+                    <th class="px-4 py-3 font-medium text-slate-500">申请门槛</th>
+                    <td class="px-4 py-3 text-slate-900">{card.features.creditScoreReq}</td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <th class="px-4 py-3 font-medium text-slate-500">特色标签</th>
+                    <td class="px-4 py-3">
+                      <div class="flex flex-wrap gap-1">
+                        {card.tags.map(tag => (
+                          <span class="text-xs bg-white border border-gray-200 px-2 py-0.5 rounded text-slate-600">{tag}</span>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <h4 class="text-blue-800 font-bold mb-2 text-sm">专家点评</h4>
+              <p class="text-sm text-blue-700 leading-relaxed">
+                {card.name} 是 {card.category[0]} 类别中的强力竞争者。{card.pros[0]} 这一特点使其在同类产品中脱颖而出。建议结合自身 {card.category.includes(CardCategory.TRAVEL) ? '出行频率' : '消费场景'} 进行选择。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

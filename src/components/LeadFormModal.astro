@@ -1,0 +1,280 @@
+---
+const FEISHU_WEBHOOK_URL = 'https://www.feishu.cn/flow/api/trigger-webhook/fcf533eb2a782b972061b0ec406f3dc7';
+const SITE_SOURCE = 'CardWise CN 官网';
+---
+
+<div
+  id="lead-modal"
+  class="fixed inset-0 z-50 hidden"
+  aria-hidden="true"
+>
+  <div
+    id="lead-modal-overlay"
+    class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+  ></div>
+
+  <div class="relative flex min-h-full items-center justify-center p-4 sm:p-6">
+    <div
+      id="lead-modal-panel"
+      class="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lead-modal-title"
+    >
+      <button
+        id="lead-modal-close"
+        type="button"
+        class="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:text-slate-900 hover:border-slate-300 cursor-pointer"
+        aria-label="关闭弹窗"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <div class="bg-slate-900 px-6 py-8 sm:px-8 sm:py-10 text-white">
+          <span class="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-sm font-semibold border border-white/10">
+            办卡申请
+          </span>
+          <h2 id="lead-modal-title" class="mt-4 text-3xl font-extrabold tracking-tight">
+            提交需求，我们尽快联系您
+          </h2>
+          <p class="mt-4 text-sm leading-relaxed text-slate-300">
+            表单提交后会自动同步到飞书。来源固定记录为 CardWise CN 官网，方便后续统一跟进。
+          </p>
+          <div class="mt-8 space-y-4 text-sm text-slate-300">
+            <div class="flex items-start gap-3">
+              <div class="mt-1 h-2.5 w-2.5 rounded-full bg-primary-500"></div>
+              <p>支持姓名、电话、公司、留言四项信息提交。</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="mt-1 h-2.5 w-2.5 rounded-full bg-primary-500"></div>
+              <p>点击卡片申请按钮时，会自动把卡片名称填入留言。</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="mt-1 h-2.5 w-2.5 rounded-full bg-primary-500"></div>
+              <p>具体审批结果以银行最终审核为准。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-6 py-8 sm:px-8 sm:py-10">
+          <form id="lead-form" class="space-y-4">
+            <div>
+              <label for="lead-name" class="mb-2 block text-sm font-medium text-slate-700">姓名</label>
+              <input
+                id="lead-name"
+                type="text"
+                name="name"
+                placeholder="请输入姓名"
+                required
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500"
+              />
+            </div>
+
+            <div>
+              <label for="lead-phone" class="mb-2 block text-sm font-medium text-slate-700">电话</label>
+              <input
+                id="lead-phone"
+                type="tel"
+                name="phone"
+                placeholder="请输入电话"
+                required
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500"
+              />
+            </div>
+
+            <div>
+              <label for="lead-company" class="mb-2 block text-sm font-medium text-slate-700">公司</label>
+              <input
+                id="lead-company"
+                type="text"
+                name="company"
+                placeholder="请输入公司名称"
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500"
+              />
+            </div>
+
+            <div>
+              <label for="lead-message" class="mb-2 block text-sm font-medium text-slate-700">留言</label>
+              <textarea
+                id="lead-message"
+                name="message"
+                rows="4"
+                placeholder="请输入您的需求"
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 resize-none"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full rounded-xl bg-slate-900 px-4 py-3.5 text-base font-bold text-white shadow-lg shadow-slate-900/15 transition-all hover:bg-slate-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-slate-900/20 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+            >
+              提交信息
+            </button>
+            <p id="lead-form-status" class="min-h-5 text-sm font-medium text-slate-600" role="status"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ FEISHU_WEBHOOK_URL, SITE_SOURCE }}>
+  const webhookUrl = FEISHU_WEBHOOK_URL;
+  const siteSource = SITE_SOURCE;
+  const modalEl = document.getElementById('lead-modal');
+  const overlayEl = document.getElementById('lead-modal-overlay');
+  const closeEl = document.getElementById('lead-modal-close');
+  const leadForm = document.getElementById('lead-form');
+  const statusEl = document.getElementById('lead-form-status');
+  const messageEl = document.getElementById('lead-message');
+  const nameEl = document.getElementById('lead-name');
+
+  let currentCardName = '';
+
+  const syncCardMessage = () => {
+    if (!(messageEl instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    if (!currentCardName) {
+      return;
+    }
+
+    const nextMessage = `我想申请 ${currentCardName}，请联系我。`;
+
+    if (!messageEl.value.trim()) {
+      messageEl.value = nextMessage;
+    }
+  };
+
+  const openLeadModal = (cardName = '') => {
+    if (!modalEl) {
+      return;
+    }
+
+    currentCardName = cardName.trim();
+    modalEl.classList.remove('hidden');
+    modalEl.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('overflow-hidden');
+    syncCardMessage();
+
+    window.setTimeout(() => {
+      if (nameEl instanceof HTMLInputElement) {
+        nameEl.focus();
+      }
+    }, 0);
+  };
+
+  const closeLeadModal = () => {
+    if (!modalEl) {
+      return;
+    }
+
+    modalEl.classList.add('hidden');
+    modalEl.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('overflow-hidden');
+  };
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    const trigger = target.closest('[data-open-lead-modal]');
+    if (!trigger) {
+      return;
+    }
+
+    event.preventDefault();
+    openLeadModal(trigger.getAttribute('data-card-name') || '');
+  });
+
+  overlayEl?.addEventListener('click', closeLeadModal);
+  closeEl?.addEventListener('click', closeLeadModal);
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modalEl && !modalEl.classList.contains('hidden')) {
+      closeLeadModal();
+    }
+  });
+
+  if (leadForm instanceof HTMLFormElement && statusEl) {
+    leadForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const submitButton = leadForm.querySelector('button[type="submit"]');
+      const formData = new FormData(leadForm);
+      const payload = {
+        name: String(formData.get('name') || '').trim(),
+        phone: String(formData.get('phone') || '').trim(),
+        company: String(formData.get('company') || '').trim(),
+        message: String(formData.get('message') || '').trim(),
+      };
+
+      if (!payload.name || !payload.phone) {
+        statusEl.textContent = '请先填写姓名和电话。';
+        statusEl.className = 'min-h-5 text-sm font-medium text-amber-600';
+        return;
+      }
+
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = true;
+        submitButton.textContent = '提交中...';
+      }
+
+      statusEl.textContent = '正在提交，请稍候...';
+      statusEl.className = 'min-h-5 text-sm font-medium text-slate-600';
+
+      try {
+        // 格式化时间为 YYYY/MM/DD HH:mm:ss
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const formattedTime = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+
+        // 使用 no-cors 模式和 text/plain 绕过浏览器跨域拦截（CORS）
+        // 因为飞书 Webhook 默认不返回 CORS 头，前端无法读取响应内容
+        // 但请求会被正常发送到飞书服务器
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+          body: JSON.stringify({
+            ...payload,
+            source: siteSource,
+            submit_time: formattedTime,
+          }),
+        });
+
+        // no-cors 模式下 response.type 为 'opaque'，status 为 0
+        // 只要 fetch 没有抛出网络错误异常，我们就认为请求已成功发出
+        leadForm.reset();
+        currentCardName = '';
+        statusEl.textContent = '提交成功，我们会尽快联系您。';
+        statusEl.className = 'min-h-5 text-sm font-medium text-emerald-600';
+
+        window.setTimeout(() => {
+          closeLeadModal();
+        }, 1200);
+      } catch (error) {
+        statusEl.textContent = error instanceof Error ? error.message : '提交失败，请稍后重试。';
+        statusEl.className = 'min-h-5 text-sm font-medium text-rose-600';
+      } finally {
+        if (submitButton instanceof HTMLButtonElement) {
+          submitButton.disabled = false;
+          submitButton.textContent = '提交信息';
+        }
+      }
+    });
+  }
+</script>

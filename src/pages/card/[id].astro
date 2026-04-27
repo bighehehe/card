@@ -45,7 +45,7 @@ const stars = Array.from({ length: 5 }, (_, i) => i < Math.floor(card.rating));
                 <img src={card.image} alt={card.name} class="w-full h-full object-cover" />
               </div>
               <div class="flex flex-col gap-3 w-full max-w-[300px]">
-                <button class="w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md text-sm">
+                <button type="button" data-open-lead-modal data-card-name={card.name} class="w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md text-sm cursor-pointer">
                   立即申请
                 </button>
                 <button

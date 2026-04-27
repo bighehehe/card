@@ -94,7 +94,7 @@ const stars = Array.from({ length: 5 }, (_, i) => i < Math.floor(card.rating));
         <p class="text-xs text-gray-500 mb-1">建议信用评分</p>
         <p class="text-sm font-bold text-slate-900">{card.features.creditScoreReq}</p>
       </div>
-      <button class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-sm">
+      <button type="button" data-open-lead-modal data-card-name={card.name} class="w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-sm cursor-pointer">
         立即申请
       </button>
 
